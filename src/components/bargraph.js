@@ -4,6 +4,7 @@ import { Group } from '@vx/group';
 import { GradientTealBlue } from '@vx/gradient';
 import { scaleBand, scaleLinear } from '@vx/scale';
 import { extent, max } from 'd3-array';
+import Spinner from './Spinner';
 
 const margin = {
     top: 60,
@@ -15,7 +16,7 @@ const margin = {
 const BarGraph = (props) => {
     if(props.data.length === 0) {
         return(
-            <div>waiting for data</div>
+            <Spinner />
         );
     }
 
@@ -39,6 +40,8 @@ const BarGraph = (props) => {
     });
 
     return (
+        <React.Fragment>
+            <Spinner />
         <svg width={props.width} height={props.height}>
             <GradientTealBlue id="teal" />
             <rect
@@ -73,6 +76,9 @@ const BarGraph = (props) => {
                 })}
             </Group>
         </svg>
+
+        </React.Fragment>
+
     )
 }
 

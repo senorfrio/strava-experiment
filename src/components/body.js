@@ -1,8 +1,10 @@
 import styled from 'styled-components';
 import React, { Component } from 'react';
-import BarGraph from './bargraph';
-import ControlPanel from './controlpanel';
+import BarGraph from './BarGraph';
+import ControlPanel from './ControlPanel';
+import { Link, Route } from 'react-router-dom';
 import apiKeys from '../apiKeys';
+import LineSeries from '../enhancers/LineSeriesWithReactVis';
 
 class Body extends Component {
     constructor(props) {
@@ -33,14 +35,14 @@ class Body extends Component {
             })
         }
     }
-    getData() {
-        fetch(`https://www.strava.com/api/v3/athlete/activities?access_token=${apiKeys.stravaAccessToken}`)
-        .then((response) => {
-            return response.json();
-        })
-        .then((json) => {
-            this.parseActivities(json);
-        });
+    async getData() {
+        try {
+            const response = await fetch(`https://www.strava.com/api/v3/athlete/activities?access_token=${apiKeys.stravaAccessToken}`);
+            this.parseActivities(await response.json());
+        }
+        catch(err) {
+            console.log('fetch failed', err);
+        }
     }
     setGraphType(e) {
         let newType;
@@ -61,11 +63,44 @@ class Body extends Component {
         });
     }
     render() {
+        const StyledLink = styled(Link)`
+            color: palevioletred;
+            display: block;
+            margin: 0.5em 0;
+            font-family: Helvetica, Arial, sans-serif;
+
+            &:hover {
+                text-decoration: underline;
+            }
+            &.active {
+                color: red;
+            }
+            `;
         return (
                 <div>
                     <ControlPanel setGraphType={this.setGraphType} />
+                    <nav>
+                        <StyledLink to="/lineseriesreactvis">
+                            Line Series React-Vis</StyledLink>
+                        <StyledLink to="/vxbargraph">@vx Bar Graph</StyledLink>
+                    </nav>
                     <div>
-                        <BarGraph width={800} height={480} yData={this.state.graphType} data={this.state.activity_data} />
+                        <Route path="/lineseriesreactvis"
+                            component={() => <LineSeries 
+                                width={800} 
+                                height={480} 
+                                data={this.state.activity_data} 
+                                yData={this.state.graphType}
+                                type='Ride' />}
+                        />
+                        <Route path="/vxbargraph"
+                            component={() => <BarGraph
+                                width={800}
+                                height={480}
+                                yData={this.state.graphType}
+                                data={this.state.activity_data}
+                            />}
+                        />
                     </div>
                 </div>
         )
